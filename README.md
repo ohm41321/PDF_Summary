@@ -10,7 +10,7 @@
 
 ### Download the .exe
 
-1. Go to **[Releases](https://github.com/ohm41321/Doc_Summary/releases](https://github.com/ohm41321/PDF_Summary/releases/tag/1.0.0)**
+1. Go to **[Releases](https://github.com/ohm41321/Doc_Summary/releases](https://github.com/ohm41321/PDF_Summary/releases/tag/1.0.0))**
 2. Download the latest version (e.g., `PDFSummarizer-v1.0.0-Windows.zip`)
 3. Extract the ZIP file
 4. Double-click **`PDFSummarizer.exe`**
