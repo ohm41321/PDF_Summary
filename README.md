@@ -1,4 +1,4 @@
-<img width="651" height="467" alt="image" src="https://github.com/user-attachments/assets/f8420b03-00e4-4e18-af5d-c13c663e3a14" /># 📄 PDF Summarizer & Q&A
+# 📄 PDF Summarizer & Q&A
 
 **AI-Powered PDF Analysis** - Upload documents, generate summaries, and ask questions in Thai & English
 
