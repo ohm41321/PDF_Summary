@@ -1,6 +1,6 @@
 # 📄 PDF Summarizer & Q&A (Local AI)
 
-**AI-Powered PDF Analysis Tool** - Summarize documents and ask questions with AI With LM Studio
+**AI-Powered PDF Analysis Tool** - Summarize documents and ask questions with Local AI(LM Studio)
 
 > 🚀 **No Python Installation Required** - Just download and run!
 
