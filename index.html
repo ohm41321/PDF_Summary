@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Summarizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --font: 'Inter', -apple-system, sans-serif; }
+        [data-theme="dark"] {
+            --bg: #0a0a0a; --bg-card: #141414; --bg-hover: #1a1a1a; --bg-input: #111;
+            --border: #262626; --text: #fafafa; --text-muted: #888; --text-dim: #555;
+            --accent-bg: #fff; --accent-text: #000;
+            --msg-user: #fff; --msg-user-text: #000; --msg-ai: #1a1a1a; --msg-ai-text: #fafafa;
+            --chip: #1a1a1a; --chip-hover: #fff; --chip-text-hover: #000;
+            --progress: #333; --dot-green: #22c55e; --dot-red: #ef4444;
+            --toast-bg: #fff; --toast-text: #000;
+            --summary-bg: #1a1a1a; --summary-border: #333; --summary-text: #e5e5e5;
+            --modal-bg: rgba(0,0,0,0.7);
+        }
+        [data-theme="light"] {
+            --bg: #fafafa; --bg-card: #fff; --bg-hover: #f5f5f5; --bg-input: #fff;
+            --border: #e5e5e5; --text: #111; --text-muted: #666; --text-dim: #999;
+            --accent-bg: #000; --accent-text: #fff;
+            --msg-user: #000; --msg-user-text: #fff; --msg-ai: #f5f5f5; --msg-ai-text: #111;
+            --chip: #f0f0f0; --chip-hover: #000; --chip-text-hover: #fff;
+            --progress: #eee; --dot-green: #16a34a; --dot-red: #dc2626;
+            --toast-bg: #000; --toast-text: #fff;
+            --summary-bg: #f8f8f8; --summary-border: #e0e0e0; --summary-text: #222;
+            --modal-bg: rgba(255,255,255,0.7);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; transition: background 0.2s, color 0.2s; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; width: 100%; }
+        header { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 14px 0; position: sticky; top: 0; z-index: 100; }
+        .header-inner { display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-size: 16px; font-weight: 600; color: var(--text); }
+        .header-actions { display: flex; gap: 6px; align-items: center; }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); color: var(--text); transition: all 0.15s; font-family: inherit; }
+        .btn:hover { background: var(--bg-hover); }
+        .btn-primary { background: var(--accent-bg); color: var(--accent-text); border-color: var(--accent-bg); }
+        .btn-primary:hover { opacity: 0.85; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        select { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: inherit; background: var(--bg-input); color: var(--text); outline: none; cursor: pointer; }
+        select:focus { border-color: var(--text); }
+        .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; transition: background 0.2s, border-color 0.2s; }
+        .card-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+        .upload-zone { border: 2px dashed var(--border); border-radius: 12px; padding: 60px 32px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg-card); }
+        .upload-zone:hover, .upload-zone.drag { border-color: var(--text); background: var(--bg-hover); }
+        .upload-zone svg { color: var(--text-dim); }
+        .upload-zone h3 { font-size: 16px; font-weight: 500; margin: 12px 0 4px; color: var(--text); }
+        .upload-zone p { font-size: 13px; color: var(--text-muted); }
+        .upload-hint { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
+        .progress-wrap { max-width: 400px; margin: 16px auto 0; }
+        .progress-bar { height: 4px; background: var(--progress); border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent-bg); transition: width 0.3s ease; border-radius: 2px; }
+        .progress-text { font-size: 12px; color: var(--text-muted); margin-top: 6px; text-align: center; }
+        .upload-steps { display: flex; gap: 4px; margin-top: 10px; justify-content: center; }
+        .upload-step { display: flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-size: 11px; color: var(--text-dim); background: transparent; }
+        .upload-step.active { color: var(--text); background: var(--bg-hover); }
+        .upload-step.done { color: var(--dot-green); }
+        .upload-step-icon { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 8px; }
+        .upload-step.done .upload-step-icon { background: var(--dot-green); border-color: var(--dot-green); color: #fff; }
+        .steps { display: flex; gap: 12px; margin-bottom: 24px; }
+        .step { flex: 1; padding: 14px 16px; border: 1px solid var(--border); border-radius: 8px; position: relative; background: var(--bg-card); transition: all 0.2s; }
+        .step.active { border-color: var(--text); }
+        .step.done { border-color: var(--text-muted); }
+        .step-num { position: absolute; top: -10px; left: 14px; background: var(--accent-bg); color: var(--accent-text); width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+        .step-label { font-size: 13px; font-weight: 500; }
+        .step-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+        @media (max-width: 768px) { .layout { grid-template-columns: 1fr; } .steps { flex-direction: column; } }
+        .chat-box { display: flex; flex-direction: column; min-height: 500px; max-height: calc(100vh - 220px); }
+        .chat-header { padding: 14px 0; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .chat-header-title { font-size: 14px; font-weight: 500; color: var(--text); }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; min-height: 300px; }
+        .chat-empty { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-dim); font-size: 13px; }
+        .msg { margin-bottom: 20px; display: flex; }
+        .msg.user { justify-content: flex-end; }
+        .msg-bubble { max-width: 75%; padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.65; }
+        .msg.user .msg-bubble { background: var(--msg-user); color: var(--msg-user-text); border-bottom-right-radius: 4px; }
+        .msg.ai .msg-bubble { background: var(--msg-ai); color: var(--msg-ai-text); border-bottom-left-radius: 4px; }
+        .msg-sources { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); display: flex; gap: 4px; flex-wrap: wrap; }
+        .msg-source { background: var(--bg-hover); border-radius: 4px; padding: 2px 8px; font-size: 11px; color: var(--text-muted); }
+        .suggested { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+        .suggested-chip { background: var(--chip); border: 1px solid var(--border); border-radius: 16px; padding: 5px 12px; font-size: 12px; cursor: pointer; transition: all 0.15s; font-family: inherit; color: var(--text); }
+        .suggested-chip:hover { background: var(--chip-hover); color: var(--chip-text-hover); border-color: var(--chip-hover); }
+        .chat-input-row { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; flex-shrink: 0; }
+        .chat-input-row input { flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; background: var(--bg-input); color: var(--text); outline: none; transition: border-color 0.15s; }
+        .chat-input-row input:focus { border-color: var(--text); }
+        .chat-input-row input:disabled { opacity: 0.5; }
+        .sidebar { display: flex; flex-direction: column; gap: 16px; }
+        .summary-box { background: var(--summary-bg); border: 1px solid var(--summary-border); border-radius: 8px; margin-bottom: 12px; cursor: pointer; transition: all 0.15s; position: relative; }
+        .summary-box:hover { border-color: var(--text-muted); }
+        .summary-box.expanded { position: fixed; inset: 80px 20px 100px; z-index: 150; max-height: none; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+        .summary-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 16px 8px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        .summary-toggle { font-size: 12px; cursor: pointer; padding: 2px 6px; border-radius: 4px; background: var(--bg-hover); }
+        .summary-text { font-size: 14px; line-height: 1.8; color: var(--summary-text); white-space: pre-wrap; word-break: break-word; padding: 0 16px 16px; overflow-y: auto; }
+        .summary-box:not(.expanded) .summary-text { max-height: 200px; }
+        .summary-box.expanded .summary-text { max-height: none; flex: 1; padding-bottom: 24px; }
+        .summary-close { position: fixed; top: 88px; right: 28px; font-size: 18px; cursor: pointer; color: var(--text-muted); display: none; z-index: 151; background: var(--bg-card); border: 1px solid var(--border); width: 32px; height: 32px; border-radius: 50%; align-items: center; justify-content: center; }
+        .summary-box.expanded .summary-close { display: flex; }
+        .qa-list { display: flex; flex-direction: column; gap: 6px; }
+        .qa-btn { width: 100%; justify-content: flex-start; padding: 8px 12px; font-size: 12px; }
+        .dots { display: flex; gap: 4px; padding: 4px 0; }
+        .dots span { width: 6px; height: 6px; background: var(--text-dim); border-radius: 50%; animation: dot 1.2s infinite; }
+        .dots span:nth-child(2) { animation-delay: 0.2s; }
+        .dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dot { 0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+        .status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 5px; }
+        .status-dot.green { background: var(--dot-green); }
+        .status-dot.red { background: var(--dot-red); }
+        .status-text { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; }
+        .doc-item { padding: 10px 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: all 0.15s; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .doc-item:hover { background: var(--bg-hover); }
+        .doc-item.active { border-color: var(--text); background: var(--bg-hover); }
+        .doc-icon { font-size: 16px; flex-shrink: 0; }
+        .doc-info { flex: 1; min-width: 0; }
+        .doc-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+        .doc-meta { font-size: 11px; color: var(--text-dim); margin-top: 1px; }
+        .doc-badge { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: var(--bg-hover); color: var(--text-muted); flex-shrink: 0; }
+        .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--toast-bg); color: var(--toast-text); padding: 10px 20px; border-radius: 8px; font-size: 13px; z-index: 999; transition: transform 0.3s ease; font-weight: 500; }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        footer { margin-top: auto; background: var(--bg-card); border-top: 1px solid var(--border); padding: 16px 0; text-align: center; font-size: 12px; color: var(--text-muted); transition: all 0.2s; }
+        footer a { color: var(--text); text-decoration: none; font-weight: 500; }
+        footer a:hover { text-decoration: underline; }
+        footer .sep { margin: 0 8px; color: var(--text-dim); }
+        .modal-overlay { position: fixed; inset: 0; background: var(--modal-bg); z-index: 200; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+        .modal { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; max-width: 360px; width: 90%; }
+        .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+        .modal-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+        .modal-options { display: flex; gap: 8px; margin-bottom: 16px; }
+        .modal-option { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; text-align: center; transition: all 0.15s; background: var(--bg-input); }
+        .modal-option:hover { border-color: var(--text); }
+        .modal-option.selected { border-color: var(--text); background: var(--bg-hover); }
+        .modal-option-icon { font-size: 20px; margin-bottom: 4px; }
+        .modal-option-label { font-size: 13px; font-weight: 500; }
+        .modal-actions { display: flex; gap: 8px; }
+        .modal-actions .btn { flex: 1; justify-content: center; }
+
+        /* Upload queue */
+        .upload-queue { max-width: 400px; margin: 12px auto 0; }
+        .queue-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 12px; }
+        .queue-icon { width: 16px; text-align: center; }
+        .queue-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .queue-status { color: var(--text-muted); }
+        .queue-done { color: var(--dot-green); }
+        .queue-error { color: var(--dot-red); }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-inner">
+            <div class="logo">PDF Summarizer</div>
+            <div class="header-actions">
+                <div class="status-text" id="lm-status"><span class="status-dot red"></span>Checking...</div>
+                <button class="btn btn-sm" id="theme-btn">🌙</button>
+                <button class="btn btn-sm" id="lang-btn">TH</button>
+                <button class="btn btn-sm hidden" id="export-btn">Export</button>
+                <button class="btn btn-sm hidden" id="export-chat-btn">Chat</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding: 28px 20px 40px;">
+        <div class="steps">
+            <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label" data-i18n="s1">Upload PDF</div><div class="step-desc" data-i18n="s1d">Drag & drop or click</div></div>
+            <div class="step" id="step2"><div class="step-num">2</div><div class="step-label" data-i18n="s2">View Summary</div><div class="step-desc" data-i18n="s2d">Auto-generated</div></div>
+            <div class="step" id="step3"><div class="step-num">3</div><div class="step-label" data-i18n="s3">Ask Questions</div><div class="step-desc" data-i18n="s3d">Chat with doc</div></div>
+        </div>
+
+        <div class="card hidden" id="model-card" style="margin-bottom:20px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                <div class="card-title" style="margin:0;">Models</div>
+                <div style="display:flex;gap:12px;flex-wrap:wrap;flex:1;">
+                    <div style="flex:1;min-width:180px;"><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">LLM</label><select id="llm-select" style="width:100%;"><option>Loading...</option></select></div>
+                    <div style="flex:1;min-width:180px;"><label style="font-size:11px;color:var(--text-muted);display:block;margin-bottom:3px;">Embedding</label><select id="embed-select" style="width:100%;"><option>Loading...</option></select></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="upload-zone" id="upload-zone">
+            <input type="file" id="file-input" accept=".pdf" multiple style="display:none">
+            <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <h3 data-i18n="upload_h">Upload your PDF</h3>
+            <p data-i18n="upload_p">Drag & drop here, or click to browse</p>
+            <p class="upload-hint" data-i18n="upload_hint">Supports multiple files</p>
+            <div class="progress-wrap hidden" id="upload-progress-wrap">
+                <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+                <div class="progress-text" id="upload-status"></div>
+                <div class="upload-steps" id="upload-steps">
+                    <div class="upload-step" id="up-step"><div class="upload-step-icon">→</div><span data-i18n="up_upload">Upload</span></div>
+                    <div class="upload-step" id="ex-step"><div class="upload-step-icon">→</div><span data-i18n="up_extract">Extract</span></div>
+                    <div class="upload-step" id="ch-step"><div class="upload-step-icon">→</div><span data-i18n="up_chunk">Chunk</span></div>
+                    <div class="upload-step" id="em-step"><div class="upload-step-icon">→</div><span data-i18n="up_embed">Embed</span></div>
+                </div>
+                <div class="upload-queue hidden" id="upload-queue"></div>
+            </div>
+        </div>
+
+        <div id="app-area" class="hidden" style="margin-top: 24px;">
+            <div class="layout">
+                <div class="card chat-box">
+                    <div class="chat-header"><div class="chat-header-title" id="doc-name">Select a document</div></div>
+                    <div class="chat-messages" id="chat-messages"><div class="chat-empty">Upload a PDF to get started</div></div>
+                    <div class="suggested hidden" id="suggested">
+                        <button class="suggested-chip" data-q-en="What are the main points?" data-q-th="สรุปประเด็นสำคัญให้หน่อย"><span data-i18n="sq1">Main points</span></button>
+                        <button class="suggested-chip" data-q-en="Summarize key findings" data-q-th="ผลการศึกษาที่สำคัญมีอะไรบ้าง"><span data-i18n="sq2">Key findings</span></button>
+                        <button class="suggested-chip" data-q-en="What conclusions are drawn?" data-q-th="มีข้อสรุปอย่างไรบ้าง"><span data-i18n="sq3">Conclusions</span></button>
+                    </div>
+                    <form class="chat-input-row" id="chat-form">
+                        <input type="text" id="chat-input" placeholder="Ask a question...">
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </form>
+                </div>
+
+                <div class="sidebar">
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <div class="card-title" style="margin:0;" data-i18n="docs_title">Documents</div>
+                            <div style="display:flex;gap:6px;align-items:center;">
+                                <span id="doc-count" style="font-size:11px;color:var(--text-dim);"></span>
+                                <button class="btn btn-sm" onclick="fileInput.click()" title="Upload more">+ Upload</button>
+                            </div>
+                        </div>
+                        <div id="docs-list" style="max-height:300px;overflow-y:auto;"></div>
+                    </div>
+
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <div class="card-title" style="margin:0;" data-i18n="summary_title">Summary</div>
+                            <button class="btn btn-sm btn-primary" id="gen-btn" data-i18n="gen_btn">Generate</button>
+                        </div>
+                        <div id="summary-loading" class="hidden"><div class="dots"><span></span><span></span><span></span></div><p style="font-size:12px;color:var(--text-dim);margin-top:6px;" data-i18n="generating">Generating...</p></div>
+                        <div id="summary-box" class="summary-box hidden" onclick="expandSummary(this)">
+                            <span class="summary-close" onclick="event.stopPropagation();closeSummary(this)">✕</span>
+                            <div class="summary-label" onclick="event.stopPropagation()">
+                                <span data-i18n="short_summary_label">SHORT SUMMARY</span>
+                                <span class="summary-toggle" onclick="expandSummary(this.closest('.summary-box'))">⛶</span>
+                            </div>
+                            <div id="summary-content" class="summary-text"></div>
+                        </div>
+                        <div id="detailed-box" class="summary-box hidden" onclick="expandSummary(this)">
+                            <span class="summary-close" onclick="event.stopPropagation();closeSummary(this)">✕</span>
+                            <div class="summary-label" onclick="event.stopPropagation()">
+                                <span data-i18n="detailed_summary_label">DETAILED SUMMARY</span>
+                                <span class="summary-toggle" onclick="expandSummary(this.closest('.summary-box'))">⛶</span>
+                            </div>
+                            <div id="detailed-content" class="summary-text"></div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title" data-i18n="qa_title">Quick Actions</div>
+                        <div class="qa-list">
+                            <button class="btn qa-btn" data-i18n="qa1" data-q-en="What are the 3 most important points?" data-q-th="3 ประเด็นที่สำคัญที่สุดคืออะไร" onclick="quickAsk(this)">🎯 Key Points</button>
+                            <button class="btn qa-btn" data-i18n="qa2" data-q-en="Explain this like I am 5 years old" data-q-th="อธิบายเอกสารนี้ให้เด็ก 5 ขวบเข้าใจ" onclick="quickAsk(this)">👶 ELI5</button>
+                            <button class="btn qa-btn" data-i18n="qa3" data-q-en="What are the main arguments and evidence?" data-q-th="ข้อโต้แย้งและหลักฐานสำคัญมีอะไรบ้าง" onclick="quickAsk(this)">📊 Analysis</button>
+                            <button class="btn qa-btn" data-i18n="qa4" data-q-en="List all names, dates, and numbers" data-q-th="ระบุชื่อ วันที่ และตัวเลขทั้งหมดที่กล่าวถึง" onclick="quickAsk(this)">📋 Entities</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            Made by <a href="https://github.com/ohm41321" target="_blank">ItsAthitz</a><span class="sep">·</span><a href="https://tipme.in.th/athitfkm" target="_blank">☕ Donate</a>
+        </div>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Summary Language Modal -->
+    <div class="modal-overlay" id="summary-modal">
+        <div class="modal">
+            <div class="modal-title" data-i18n="modal_title">Summary Language</div>
+            <div class="modal-desc" data-i18n="modal_desc">Choose the language for your summary.</div>
+            <div class="modal-options">
+                <div class="modal-option" data-lang="en" onclick="selectSummaryLang('en')"><div class="modal-option-icon">🇬🇧</div><div class="modal-option-label">English</div></div>
+                <div class="modal-option" data-lang="th" onclick="selectSummaryLang('th')"><div class="modal-option-icon">🇹🇭</div><div class="modal-option-label">ภาษาไทย</div></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModal()" data-i18n="modal_cancel">Cancel</button>
+                <button class="btn btn-primary" onclick="doGenerate()" data-i18n="modal_generate">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const i18n = {
+            en: {
+                s1: "Upload PDF", s1d: "Drag & drop or click", s2: "View Summary", s2d: "Auto-generated",
+                s3: "Ask Questions", s3d: "Chat with doc",
+                upload_h: "Upload your PDF", upload_p: "Drag & drop here, or click to browse",
+                upload_hint: "Supports multiple files",
+                lang: "TH", connected: "Connected", not_connected: "LM Studio not running",
+                placeholder: "Ask a question...", docs_empty: "No documents yet", docs_title: "Documents",
+                chat_empty: "Upload a PDF to get started",
+                err_upload: "Upload failed", err_summary: "Summary failed", err_ask: "Answer failed",
+                theme_dark: "🌙", theme_light: "☀️",
+                gen_btn: "Generate", generating: "Generating...",
+                summary_title: "Summary", qa_title: "Quick Actions",
+                short_summary_label: "SHORT SUMMARY", detailed_summary_label: "DETAILED SUMMARY",
+                modal_title: "Summary Language", modal_desc: "Choose the language for your summary.",
+                modal_cancel: "Cancel", modal_generate: "Generate",
+                up_upload: "Upload", up_extract: "Extract text", up_chunk: "Chunk", up_embed: "Embedding",
+                status_uploading: "Uploading", status_extracting: "Extracting text...",
+                status_chunking: "Splitting into chunks...", status_embedding: "Generating embeddings...",
+                status_done: "Complete! Processing AI summary...",
+                toast_multi_upload: "Uploaded {count} files, {ok} succeeded",
+                pages: "pages", chunks: "chunks",
+                sq1: "Main points", sq2: "Key findings", sq3: "Conclusions",
+                qa1: "🎯 Key Points", qa2: "👶 ELI5", qa3: "📊 Analysis", qa4: "📋 Entities"
+            },
+            th: {
+                s1: "อัปโหลด PDF", s1d: "ลากวางหรือคลิก", s2: "ดูสรุป", s2d: "สร้างอัตโนมัติ",
+                s3: "ถามคำถาม", s3d: "แชทกับเอกสาร",
+                upload_h: "อัปโหลด PDF", upload_p: "ลากวางที่นี่ หรือคลิกเลือกไฟล์",
+                upload_hint: "รองรับหลายไฟล์พร้อมกัน",
+                lang: "EN", connected: "เชื่อมต่อแล้ว", not_connected: "LM Studio ยังไม่เปิด",
+                placeholder: "ถามคำถาม...", docs_empty: "ยังไม่มีเอกสาร", docs_title: "เอกสาร",
+                chat_empty: "อัปโหลด PDF เพื่อเริ่มใช้งาน",
+                err_upload: "อัปโหลดไม่สำเร็จ", err_summary: "สร้างสรุปไม่สำเร็จ", err_ask: "ไม่สามารถตอบได้",
+                theme_dark: "☀️", theme_light: "🌙",
+                gen_btn: "สร้างสรุป", generating: "กำลังสร้าง...",
+                summary_title: "สรุป", qa_title: "เครื่องมือด่วน",
+                short_summary_label: "สรุปสั้น", detailed_summary_label: "สรุปละเอียด",
+                modal_title: "ภาษาของสรุป", modal_desc: "เลือกภาษาสำหรับสรุปเอกสาร",
+                modal_cancel: "ยกเลิก", modal_generate: "สร้างสรุป",
+                up_upload: "อัปโหลด", up_extract: "ดึงข้อความ", up_chunk: "แบ่งส่วน", up_embed: "Embedding",
+                status_uploading: "กำลังอัปโหลด", status_extracting: "กำลังดึงข้อความ...",
+                status_chunking: "กำลังแบ่งส่วน...", status_embedding: "กำลังสร้าง embedding...",
+                status_done: "เสร็จสิ้น! กำลังประมวลผลสรุป...",
+                toast_multi_upload: "อัปโหลด {count} ไฟล์ สำเร็จ {ok} ไฟล์",
+                pages: "หน้า", chunks: "ส่วน",
+                sq1: "ประเด็นหลัก", sq2: "ผลสำคัญ", sq3: "ข้อสรุป",
+                qa1: "🎯 ประเด็นสำคัญ", qa2: "👶 อธิบายง่ายๆ", qa3: "📊 วิเคราะห์", qa4: "📋 ข้อมูลสำคัญ"
+            }
+        };
+
+        let lang = 'en';
+        let currentDocId = null;
+        let chatHistory = [];
+        let summaryLang = 'en';
+        const $ = id => document.getElementById(id);
+        const t = () => i18n[lang];
+
+        function setLang(l) {
+            lang = l;
+            document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); if (i18n[l][k]) el.textContent = i18n[l][k]; });
+            $('lang-btn').textContent = i18n[l].lang;
+            $('chat-input').placeholder = i18n[l].placeholder;
+            if ($('chat-messages').querySelector('.chat-empty')) $('chat-messages').querySelector('.chat-empty').textContent = i18n[l].chat_empty;
+            loadDocs(); // Refresh doc names
+        }
+        $('lang-btn').onclick = () => setLang(lang === 'en' ? 'th' : 'en');
+
+        function getTheme() { return localStorage.getItem('theme') || 'dark'; }
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            $('theme-btn').textContent = theme === 'dark' ? i18n[lang].theme_light : i18n[lang].theme_dark;
+        }
+        setTheme(getTheme());
+        $('theme-btn').onclick = () => setTheme(getTheme() === 'dark' ? 'light' : 'dark');
+
+        function toast(msg) { const el = $('toast'); el.textContent = msg; el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 3000); }
+
+        // ========== Modal ==========
+        function selectSummaryLang(l) { summaryLang = l; document.querySelectorAll('.modal-option').forEach(el => el.classList.toggle('selected', el.dataset.lang === l)); }
+        function openSummaryModal() { selectSummaryLang(lang); $('summary-modal').classList.add('show'); }
+        function closeModal() { $('summary-modal').classList.remove('show'); }
+
+        async function doGenerate() {
+            closeModal();
+            if (!currentDocId) { toast('Please upload a PDF first'); return; }
+            $('summary-loading').classList.remove('hidden'); $('summary-box').classList.add('hidden'); $('detailed-box').classList.add('hidden'); $('gen-btn').disabled = true;
+            try {
+                const fd = new FormData();
+                fd.append('document_id', currentDocId);
+                const lp = summaryLang === 'th' ? 'กรุณาสรุปเอกสารด้านล่างเป็นภาษาไทย ให้กระชับและเข้าใจง่าย' : 'Please summarize the document below in English. Keep it concise and clear.';
+                fd.append('short_prompt', lp);
+                fd.append('detailed_prompt', lp + '\nProvide detailed sections with headings.');
+                const r = await fetch('/summarize', {method: 'POST', body: fd});
+                if (!r.ok) throw new Error('Failed');
+                const d = await r.json();
+                if (d.success) {
+                    $('summary-content').innerHTML = formatSummary(d.short_summary);
+                    $('summary-box').classList.remove('hidden');
+                    $('detailed-content').innerHTML = formatSummary(d.detailed_summary);
+                    $('detailed-box').classList.remove('hidden');
+                    $('export-btn').classList.remove('hidden');
+                    $('step2').classList.remove('active'); $('step2').classList.add('done');
+                }
+            } catch (e) { toast(t().err_summary); }
+            finally { $('summary-loading').classList.add('hidden'); $('gen-btn').disabled = false; }
+        }
+
+        function formatSummary(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/^• /gm, '&bull; ').replace(/^[-*] /gm, '&bull; ')
+                .replace(/^### (.*$)/gm, '<strong style="font-size:15px;">$1</strong>').replace(/^## (.*$)/gm, '<strong style="font-size:16px;">$1</strong>')
+                .replace(/^# (.*$)/gm, '<strong style="font-size:17px;">$1</strong>').replace(/\n/g, '<br>');
+        }
+
+        // ========== Summary expand/collapse ==========
+        function expandSummary(box) {
+            if (!box) return;
+            box.classList.add('expanded');
+            document.body.style.overflow = 'hidden'; // Prevent background scroll
+        }
+
+        function closeSummary(el) {
+            const box = el.closest('.summary-box');
+            if (box) box.classList.remove('expanded');
+            document.body.style.overflow = '';
+        }
+
+        // Close expanded summary on Escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.summary-box.expanded').forEach(box => box.classList.remove('expanded'));
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Close on backdrop click
+        document.addEventListener('click', e => {
+            if (e.target.classList.contains('summary-close')) return;
+            document.querySelectorAll('.summary-box.expanded').forEach(box => {
+                if (!box.contains(e.target)) {
+                    box.classList.remove('expanded');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // ========== LM + Models ==========
+        async function checkLM() {
+            try {
+                const r = await fetch('/health');
+                if (!r.ok) throw new Error();
+                const d = await r.json();
+                const ok = d.lm_studio_status && d.lm_studio_status.includes('connected');
+                $('lm-status').innerHTML = `<span class="status-dot ${ok ? 'green' : 'red'}"></span>${ok ? t().connected : t().not_connected}`;
+                if (ok) loadModels();
+            } catch (e) { $('lm-status').innerHTML = `<span class="status-dot red"></span>${t().not_connected}`; }
+        }
+
+        async function loadModels() {
+            try {
+                const r = await fetch('/models'); const d = await r.json();
+                if (!d.success || !d.models || !d.models.length) return;
+                const llmSel = $('llm-select'), embSel = $('embed-select');
+                llmSel.innerHTML = ''; embSel.innerHTML = '';
+                let cc = 0, ec = 0;
+                d.models.forEach(m => {
+                    const isChat = m.type === 'chat';
+                    const opt = document.createElement('option');
+                    opt.value = m.id; opt.textContent = m.id.length > 45 ? m.id.substring(0, 42) + '...' : m.id;
+                    if (isChat) { llmSel.appendChild(opt); cc++; } else { embSel.appendChild(opt.cloneNode(true)); ec++; }
+                });
+                if (!ec) { const o = document.createElement('option'); o.value = 'auto'; o.textContent = '(Default)'; embSel.appendChild(o); }
+                if (d.current_llm && cc) llmSel.value = d.current_llm;
+                if (d.current_embedding && ec) embSel.value = d.current_embedding;
+                $('model-card').classList.remove('hidden');
+                llmSel.onchange = async () => { try { await fetch('/models/switch', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({llm_model: llmSel.value}) }); } catch(e){} };
+                embSel.onchange = async () => { try { await fetch('/models/switch', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({embedding_model: embSel.value}) }); } catch(e){} };
+            } catch (e) { console.error(e); }
+        }
+
+        // ========== Upload (single + multiple) ==========
+        const uploadZone = $('upload-zone'), fileInput = $('file-input');
+        uploadZone.onclick = e => { if (e.target.tagName !== 'BUTTON' && e.target.tagName !== 'SELECT') fileInput.click(); };
+        uploadZone.ondragover = e => { e.preventDefault(); uploadZone.classList.add('drag'); };
+        uploadZone.ondragleave = () => uploadZone.classList.remove('drag');
+        uploadZone.ondrop = e => { e.preventDefault(); uploadZone.classList.remove('drag'); if (e.dataTransfer.files.length) uploadFiles(e.dataTransfer.files); };
+        fileInput.onchange = e => { if (e.target.files.length) uploadFiles(e.target.files); };
+
+        function setUploadStep(step) {
+            ['up-step','ex-step','ch-step','em-step'].forEach(id => {
+                const el = $(id); el.classList.remove('active', 'done');
+                if (id === step) el.classList.add('active');
+                const order = ['up-step','ex-step','ch-step','em-step'];
+                if (order.indexOf(id) < order.indexOf(step)) el.classList.add('done');
+            });
+        }
+
+        async function uploadFiles(fileList) {
+            const files = Array.from(fileList).filter(f => f.name.toLowerCase().endsWith('.pdf'));
+            if (!files.length) { toast('Please upload PDF files only'); return; }
+
+            $('upload-progress-wrap').classList.remove('hidden');
+            $('upload-status').textContent = '';
+
+            if (files.length === 1) {
+                // Single file with progress tracking
+                const file = files[0];
+                $('progress-fill').style.width = '0%';
+                $('upload-steps').style.display = 'flex';
+                $('upload-queue').classList.add('hidden');
+                setUploadStep('up-step');
+                $('upload-status').textContent = t().status_uploading;
+
+                const fd = new FormData(); fd.append('file', file);
+                const xhr = new XMLHttpRequest();
+                xhr.upload.onprogress = e => {
+                    if (e.lengthComputable) {
+                        const pct = Math.round((e.loaded / e.total) * 50);
+                        $('progress-fill').style.width = pct + '%';
+                        $('upload-status').textContent = `${t().status_uploading} ${pct}%`;
+                    }
+                };
+                xhr.onload = () => {
+                    try {
+                        if (xhr.status === 200) {
+                            const d = JSON.parse(xhr.responseText);
+                            if (d.success) {
+                                simulateProcessing(d);
+                            } else throw new Error(d.detail || 'Unknown');
+                        } else throw new Error(`HTTP ${xhr.status}`);
+                    } catch (e) { $('upload-status').textContent = `Error: ${e.message}`; $('progress-fill').style.background = '#ef4444'; toast(t().err_upload); }
+                };
+                xhr.onerror = () => { $('upload-status').textContent = 'Network error'; $('progress-fill').style.background = '#ef4444'; toast(t().err_upload); };
+                xhr.open('POST', '/upload');
+                xhr.send(fd);
+            } else {
+                // Multiple files - batch upload
+                $('upload-steps').style.display = 'none';
+                $('progress-fill').style.width = '0%';
+                $('upload-queue').classList.remove('hidden');
+                renderQueue(files);
+
+                const fd = new FormData();
+                files.forEach(f => fd.append('files', f));
+
+                let uploaded = 0;
+                const xhr = new XMLHttpRequest();
+                xhr.upload.onprogress = e => {
+                    if (e.lengthComputable) {
+                        const pct = Math.round((e.loaded / e.total) * 100);
+                        $('progress-fill').style.width = pct + '%';
+                        $('upload-status').textContent = `${t().status_uploading} ${uploaded}/${files.length} (${pct}%)`;
+                    }
+                };
+                xhr.onload = () => {
+                    try {
+                        if (xhr.status === 200) {
+                            const d = JSON.parse(xhr.responseText);
+                            if (d.results) {
+                                let okCount = 0;
+                                d.results.forEach((r, i) => {
+                                    if (r.success) { okCount++; updateQueueItem(i, '✓', 'done'); }
+                                    else updateQueueItem(i, '✗', 'error');
+                                });
+                                $('progress-fill').style.width = '100%';
+                                $('upload-status').textContent = t().toast_multi_upload.replace('{count}', files.length).replace('{ok}', okCount);
+                                toast(t().toast_multi_upload.replace('{count}', files.length).replace('{ok}', okCount));
+
+                                loadDocs();
+                                $('app-area').classList.remove('hidden');
+
+                                // Select first successful doc
+                                const first = d.results.find(r => r.success);
+                                if (first) {
+                                    currentDocId = first.document_id;
+                                    $('doc-name').textContent = first.filename;
+                                    $('suggested').classList.remove('hidden');
+                                    $('chat-input').disabled = false;
+                                    $('step1').classList.remove('active'); $('step1').classList.add('done');
+                                    $('step2').classList.add('active');
+                                }
+
+                                setTimeout(() => { $('upload-progress-wrap').classList.add('hidden'); $('progress-fill').style.width = '0%'; }, 2000);
+                            }
+                        } else throw new Error(`HTTP ${xhr.status}`);
+                    } catch (e) { $('upload-status').textContent = `Error: ${e.message}`; $('progress-fill').style.background = '#ef4444'; }
+                };
+                xhr.onerror = () => { $('upload-status').textContent = 'Network error'; $('progress-fill').style.background = '#ef4444'; };
+                xhr.open('POST', '/upload/multiple');
+                xhr.send(fd);
+            }
+        }
+
+        function renderQueue(files) {
+            $('upload-queue').innerHTML = files.map((f, i) =>
+                `<div class="queue-item" id="qi-${i}"><span class="queue-icon">○</span><span class="queue-name">${f.name}</span><span class="queue-status">Waiting</span></div>`
+            ).join('');
+        }
+
+        function updateQueueItem(idx, icon, cls) {
+            const el = $(`qi-${idx}`);
+            if (!el) return;
+            el.querySelector('.queue-icon').textContent = icon;
+            const status = el.querySelector('.queue-status');
+            status.className = `queue-status queue-${cls}`;
+            status.textContent = cls === 'done' ? 'Done' : 'Failed';
+        }
+
+        function simulateProcessing(data) {
+            const steps = [
+                { step: 'ex-step', pct: 60, text: t().status_extracting, delay: 300 },
+                { step: 'ch-step', pct: 75, text: t().status_chunking, delay: 300 },
+                { step: 'em-step', pct: 95, text: t().status_embedding, delay: 500 },
+                { step: null, pct: 100, text: t().status_done, delay: 200 }
+            ];
+            let i = 0;
+            function next() {
+                if (i >= steps.length) {
+                    currentDocId = data.document_id;
+                    $('doc-name').textContent = data.filename;
+                    $('step1').classList.remove('active'); $('step1').classList.add('done');
+                    $('step2').classList.add('active');
+                    $('app-area').classList.remove('hidden');
+                    $('suggested').classList.remove('hidden');
+                    $('chat-input').disabled = false;
+                    loadDocs();
+                    openSummaryModal();
+                    setTimeout(() => { $('upload-progress-wrap').classList.add('hidden'); $('progress-fill').style.width = '0%'; }, 1500);
+                    return;
+                }
+                const s = steps[i];
+                if (s.step) setUploadStep(s.step);
+                $('progress-fill').style.width = s.pct + '%';
+                $('upload-status').textContent = s.text;
+                i++;
+                setTimeout(next, s.delay);
+            }
+            next();
+        }
+
+        // ========== Docs ==========
+        async function loadDocs(autoSelect = false) {
+            try {
+                const r = await fetch('/documents');
+                if (!r.ok) throw new Error();
+                const d = await r.json();
+                if (!d.documents || !d.documents.length) {
+                    $('docs-list').innerHTML = `<p style="font-size:12px;color:var(--text-dim);">${t().docs_empty}</p>`;
+                    $('doc-count').textContent = '';
+                    return;
+                }
+
+                $('doc-count').textContent = `${d.documents.length} file(s)`;
+                $('docs-list').innerHTML = d.documents.map(doc =>
+                    `<div class="doc-item ${doc.id === currentDocId ? 'active' : ''}" data-id="${doc.id}" data-name="${doc.name}">
+                        <span class="doc-icon">📄</span>
+                        <div class="doc-info" onclick="selectDoc('${doc.id}', '${doc.name.replace(/'/g, "\\'")}')">
+                            <div class="doc-name">${doc.name}</div>
+                            <div class="doc-meta">${doc.num_pages || '?'} ${t().pages} · ${doc.num_chunks || 0} ${t().chunks}</div>
+                        </div>
+                        <button class="btn btn-sm" style="padding:3px 6px;font-size:10px;" onclick="deleteDoc('${doc.id}', '${doc.name.replace(/'/g, "\\'")}')" title="Delete">🗑</button>
+                    </div>`
+                ).join('');
+
+                // Always show app area if docs exist, hide upload zone
+                $('app-area').classList.remove('hidden');
+                $('upload-zone').style.display = 'none';
+                $('chat-input').disabled = false;
+                $('suggested').classList.remove('hidden');
+
+                if (autoSelect && !currentDocId) {
+                    // First load - auto-select first doc
+                    const first = d.documents[0];
+                    currentDocId = first.id;
+                    $('doc-name').textContent = first.name;
+                    $('step1').classList.remove('active');
+                    $('step1').classList.add('done');
+                    $('step2').classList.add('active');
+                    document.querySelectorAll('.doc-item').forEach(el => {
+                        el.classList.toggle('active', el.dataset.id === first.id);
+                    });
+                } else if (currentDocId) {
+                    // User already selected or selected before - highlight it
+                    document.querySelectorAll('.doc-item').forEach(el => {
+                        el.classList.toggle('active', el.dataset.id === currentDocId);
+                    });
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function selectDoc(id, name) {
+            currentDocId = id;
+            $('doc-name').textContent = name;
+            $('chat-messages').innerHTML = '';
+            $('suggested').classList.remove('hidden');
+            $('chat-input').disabled = false;
+            $('export-btn').classList.add('hidden');
+            $('summary-box').classList.add('hidden'); $('summary-box').classList.remove('expanded');
+            $('detailed-box').classList.add('hidden'); $('detailed-box').classList.remove('expanded');
+            document.body.style.overflow = '';
+            document.querySelectorAll('.doc-item').forEach(el => el.classList.toggle('active', el.dataset.id === id));
+        }
+
+        async function deleteDoc(id, name) {
+            if (!confirm(`Delete "${name}"?\nThis will remove all data including embeddings and chat history.`)) return;
+            try {
+                const r = await fetch(`/documents/${id}`, { method: 'DELETE' });
+                if (!r.ok) throw new Error('Delete failed');
+                const d = await r.json();
+                if (d.success) {
+                    if (id === currentDocId) {
+                        currentDocId = null;
+                        $('doc-name').textContent = 'Select a document';
+                        $('chat-messages').innerHTML = '';
+                        $('chat-input').disabled = true;
+                        $('suggested').classList.add('hidden');
+                        $('summary-box').classList.add('hidden');
+                        $('detailed-box').classList.add('hidden');
+                    }
+                    // Reload and check if any docs left
+                    const docsResp = await fetch('/documents');
+                    const docsData = await docsResp.json();
+                    if (!docsData.documents || !docsData.documents.length) {
+                        // No docs left - show upload zone again
+                        $('upload-zone').style.display = '';
+                        $('app-area').classList.add('hidden');
+                        $('step1').classList.add('active');
+                        $('step1').classList.remove('done');
+                        $('step2').classList.remove('active');
+                        $('step3').classList.remove('active');
+                    }
+                    loadDocs(false);
+                    toast('Document deleted');
+                }
+            } catch (e) { console.error(e); toast('Delete failed'); }
+        }
+
+        // ========== Chat ==========
+        function quickAsk(btn) {
+            const q = lang === 'th' ? btn.dataset.qTh : btn.dataset.qEn;
+            $('chat-input').value = q;
+            sendChat();
+        }
+
+        // Suggested chips - use Thai question when in TH mode
+        document.querySelectorAll('.suggested-chip').forEach(chip => {
+            chip.onclick = () => {
+                const q = lang === 'th' ? chip.dataset.qTh : chip.dataset.qEn;
+                $('chat-input').value = q;
+                sendChat();
+            };
+        });
+
+        function sendChat() {
+            const q = $('chat-input').value.trim();
+            if (!q || !currentDocId) return;
+            $('chat-input').value = '';
+            addMsg('user', q);
+            chatHistory.push({role: 'user', content: q});
+            const lid = addLoading();
+            fetch('/ask', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({document_id: currentDocId, question: q}) })
+            .then(r => r.json())
+            .then(d => { removeMsg(lid); if (d.answer) { addMsg('ai', d.answer, d.source_chunks); chatHistory.push({role: 'ai', content: d.answer}); $('step2').classList.remove('active'); $('step2').classList.add('done'); $('step3').classList.add('active'); } else addMsg('ai', 'No answer found.'); })
+            .catch(e => { removeMsg(lid); addMsg('ai', `Error: ${e.message}`); toast(t().err_ask); });
+        }
+        $('chat-form').onsubmit = e => { e.preventDefault(); sendChat(); };
+
+        function addMsg(role, content, sources) {
+            if ($('chat-messages').querySelector('.chat-empty')) $('chat-messages').innerHTML = '';
+            const div = document.createElement('div');
+            div.className = `msg ${role === 'user' ? 'user' : 'ai'}`;
+            let html = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            if (sources && sources.length) html += '<div class="msg-sources">' + sources.map((s, i) => `<span class="msg-source">${s.page_reference || 'Source ' + (i+1)}</span>`).join('') + '</div>';
+            div.innerHTML = `<div class="msg-bubble">${html}</div>`;
+            $('chat-messages').appendChild(div);
+            $('chat-messages').scrollTop = $('chat-messages').scrollHeight;
+        }
+        function addLoading() { const id = 'l' + Date.now(); const div = document.createElement('div'); div.id = id; div.className = 'msg ai'; div.innerHTML = '<div class="msg-bubble"><div class="dots"><span></span><span></span><span></span></div></div>'; $('chat-messages').appendChild(div); $('chat-messages').scrollTop = $('chat-messages').scrollHeight; return id; }
+        function removeMsg(id) { const el = $(id); if (el) el.remove(); }
+
+        // ========== Summary ==========
+        $('gen-btn').onclick = openSummaryModal;
+
+        // ========== Export ==========
+        $('export-btn').onclick = async () => { if (!currentDocId) return; try { const r = await fetch(`/export/${currentDocId}`); const d = await r.json(); if (d.success) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([d.content])); a.download = d.filename; a.click(); } } catch (e) {} };
+        $('export-chat-btn').onclick = () => { if (!chatHistory.length) return; let txt = `Chat History\n${'='.repeat(50)}\n\n`; chatHistory.forEach(m => { txt += `${m.role.toUpperCase()}:\n${m.content}\n\n${'-'.repeat(30)}\n\n`; }); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt])); a.download = `chat_${Date.now()}.txt`; a.click(); };
+
+        // ========== Init ==========
+        checkLM();
+        loadDocs(true); // auto-select first doc if exists
+    </script>
+</body>
+</html>

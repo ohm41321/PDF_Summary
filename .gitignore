@@ -1,0 +1,69 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+env/
+
+# PyInstaller
+build/
+dist/
+*.spec
+*.manifest
+*.cache
+
+# Uploaded files
+uploads/
+*.pdf
+
+# Data
+data/
+*.db
+*.faiss
+*_chunks.pkl
+
+# Cache
+cache/
+*_embeddings.pkl
+
+# Environment
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+server.log
+
+# Distribution
+*.exe
+*.dmg
+*.app
+*.zip
+*.tar.gz
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
