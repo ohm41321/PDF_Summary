@@ -11,7 +11,7 @@
 ### Download the .exe
 
 1. Go to **[Releases](https://github.com/ohm41321/PDF_Summary/releases)**
-2. Download the latest version (e.g., `PDFSummarizer-v1.0.0-Windows.zip`)
+2. Download the latest version (e.g., `PDFSummarizer_v1.0.zip`)
 3. Extract the ZIP file
 4. Double-click **`PDFSummarizer.exe`**
 5. Your browser will open to `http://localhost:8000`
