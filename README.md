@@ -101,6 +101,12 @@
 
 ---
 
+## 📸 Screenshots
+
+<img width="2483" height="1355" alt="image" src="https://github.com/user-attachments/assets/00558d88-f28a-498b-b58f-c8ddd415e7ee" />
+
+---
+
 ## 📁 File Structure (After Extracting)
 
 ```
