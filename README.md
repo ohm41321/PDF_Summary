@@ -1,4 +1,4 @@
-# 📄 PDF Summarizer & Q&A
+<img width="651" height="467" alt="image" src="https://github.com/user-attachments/assets/f8420b03-00e4-4e18-af5d-c13c663e3a14" /># 📄 PDF Summarizer & Q&A
 
 **AI-Powered PDF Analysis** - Upload documents, generate summaries, and ask questions in Thai & English
 
@@ -27,9 +27,7 @@
 ---
 
 ## 📸 Screenshots
-
-*Add screenshots of your application here*
-
+<img width="2483" height="1355" alt="image" src="https://github.com/user-attachments/assets/00558d88-f28a-498b-b58f-c8ddd415e7ee" />
 ---
 
 ## 🚀 Quick Start
