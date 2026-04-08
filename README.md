@@ -1,181 +1,224 @@
 # 📄 PDF Summarizer & Q&A
 
-**AI-Powered PDF Analysis Tool** - สรุปเอกสารและถามตอบด้วย AI ง่ายๆ แค่ดับเบิลคลิก
+**AI-Powered PDF Analysis Tool** - Summarize documents and ask questions with AI
 
-> 🚀 **ไม่ต้องติดตั้ง Python** - เพียงดาวน์โหลดและรันได้เลย!
+> 🚀 **No Python Installation Required** - Just download and run!
 
 ---
 
-## 📥 ดาวน์โหลด
+## 🚀 Quick Start (For Users)
 
-### เวอร์ชันล่าสุด: **v1.0.0**
+### Download the .exe
 
-| ไฟล์ | ขนาด | คำอธิบาย | ดาวน์โหลด |
-|---|---|---|---|
-| PDFSummarizer v1.0.0 | ~800 MB | แอปสมบูรณ์พร้อมใช้ | **[ดาวน์โหลดที่นี่](../../releases/latest)** |
+1. Go to **[Releases](https://github.com/ohm41321/Doc_Summary/releases)**
+2. Download the latest version (e.g., `PDFSummarizer-v1.0.0-Windows.zip`)
+3. Extract the ZIP file
+4. Double-click **`PDFSummarizer.exe`**
+5. Your browser will open to `http://localhost:8000`
 
-### ความต้องการระบบ
+### Requirements
+
 - ✅ Windows 10/11 (64-bit)
-- ✅ RAM 8GB ขึ้นไป
-- ✅ LM Studio (สำหรับ AI features)
+- ✅ 8GB RAM minimum
+- ✅ LM Studio (for AI features)
+
+### First Time Setup
+
+#### Step 1: Install LM Studio
+
+1. Download from: https://lmstudio.ai/
+2. Install and open the program
+3. Download a model (see recommendations below)
+4. Click **"Start Server"**
+
+#### Step 2: Run the App
+
+1. Open the extracted folder
+2. Double-click **`PDFSummarizer.exe`**
+3. Start uploading PDFs!
 
 ---
 
-## 🚀 เริ่มใช้งานใน 3 ขั้นตอน
+## 📖 How to Use
 
-### ขั้นตอนที่ 1: ดาวน์โหลดและแตกไฟล์
+### 1️⃣ Upload PDF
+- Drag and drop or click to select
+- Supports multiple files
 
-1. ดาวน์โหลดจาก **[Releases](../../releases/latest)**
-2. แตกไฟล์ ZIP
-3. จะได้โฟลเดอร์ `PDFSummarizer`
+### 2️⃣ Generate Summaries
+- Click **"Generate"** button
+- View short (3-5 bullets) or detailed summary
+- Click **Export** to download
 
-### ขั้นตอนที่ 2: ติดตั้ง LM Studio
+### 3️⃣ Ask Questions
+- Type your question in the chat box
+- Click suggested questions
+- AI answers based on PDF content
 
-> ⚠️ **ต้องติดตั้ง LM Studio ก่อน** เพื่อให้ AI ทำงานได้
-
-1. ดาวน์โหลด LM Studio: https://lmstudio.ai/
-2. ติดตั้งและเปิดโปรแกรม
-3. ดาวน์โหลดโมเดล (ดูคำแนะนำด้านล่าง)
-4. กด **"Start Server"**
-
-### ขั้นตอนที่ 3: รันแอป
-
-1. เปิดโฟลเดอร์ `PDFSummarizer`
-2. ดับเบิลคลิก **`PDFSummarizer.exe`**
-3. เว็บเบราว์เซอร์จะเปิดอัตโนมัติที่ `http://localhost:8000`
-4. เริ่มอัปโหลด PDF ได้เลย!
+### 4️⃣ Switch Language
+- Click 🇹🇭 / 🌐 button in top-right corner
 
 ---
 
-## 📸 วิธีใช้งาน
+## 🤖 LM Studio Setup
 
-### 1️⃣ อัปโหลด PDF
-- ลากไฟล์วาง หรือคลิกเพื่อเลือกไฟล์
-- รองรับหลายไฟล์พร้อมกัน
+### Recommended Models (Thai Language Support)
 
-### 2️⃣ สรุปเนื้อหา
-- กดปุ่ม **"Generate"**
-- ดูสรุปแบบสั้น (3-5 bullet) หรือแบบละเอียด
-- กด **Export** เพื่อดาวน์โหลดสรุป
-
-### 3️⃣ ถามตอบเกี่ยวกับเอกสาร
-- พิมพ์คำถามในช่องแชท
-- กดปุ่มคำถามแนะนำ
-- AI จะตอบโดยอ้างอิงจากเนื้อหาใน PDF
-
-### 4️⃣ เปลี่ยนภาษา
-- กดปุ่ม 🇹🇭 / 🌐 มุมขวาบน
-
----
-
-## 🔧 ตั้งค่า LM Studio
-
-### ⭐ แนะนำโมเดลสำหรับภาษาไทย
-
-| ประเภท | โมเดล | ขนาด | จุดเด่น |
+| Type | Model | Size | Best For |
 |---|---|---|---|
-| **LLM** | **Typhoon-v1.5x-7B** 🇹🇭 | ~7B | เข้าใจภาษาไทยดีที่สุด |
-| **LLM** | **Qwen2.5-7B-Instruct** | ~7B | ดีทั้งไทย+อังกฤษ |
-| **Embedding** | **bge-m3** | ~2GB | รองรับ 100+ ภาษา |
-| **Embedding** | **BAAI/bge-base-th** 🇹🇭 | ~500MB | เฉพาะภาษาไทย |
+| **LLM** | **Typhoon-v1.5x-7B** 🇹🇭 | ~7B | Thai documents (best quality) |
+| **LLM** | **Qwen2.5-7B-Instruct** | ~7B | Thai + English mix |
+| **Embedding** | **bge-m3** | ~2GB | 100+ languages |
+| **Embedding** | **BAAI/bge-base-th** 🇹🇭 | ~500MB | Thai-specific |
 
-### วิธีดาวน์โหลดโมเดล
+### How to Download Models
 
-1. เปิด LM Studio
-2. กดไอคอน 🔍 **Search**
-3. พิมพ์ชื่อโมเดล (เช่น `typhoon-v1.5x-7b`)
-4. กด **Download** (แนะนำเวอร์ชัน Q4_K_M)
-5. รอจนดาวน์โหลดเสร็จ
+1. Open LM Studio
+2. Click 🔍 **Search** icon
+3. Type model name (e.g., `typhoon-v1.5x-7b`)
+4. Click **Download** (recommend Q4_K_M version)
+5. Wait for download to complete
 
-### วิธีเริ่มใช้งาน
+### How to Start the Server
 
-1. ไปที่แท็บ **🖥️ Local Server**
-2. เลือกโมเดลที่ดาวน์โหลดมา
-3. กด **"Start Server"**
-4. รอจนขึ้นสีเขียว
-5. รัน PDFSummarizer.exe ได้เลย!
-
----
-
-## 🇹🇭 แนะนำโมเดลสำหรับภาษาไทย
-
-### 🏆 อันดับ 1: Typhoon-v1.5x-7B
-
-**เหมาะสำหรับ:**
-- 📄 เอกสารภาษาไทย
-- 📊 รายงานวิจัย
-- 📚 หนังสือเรียน
-- 📋 เอกสารราชการ
-
-**จุดเด่น:**
-- เข้าใจบริบทไทยดีที่สุด
-- สรุปเนื้อหาได้เป็นธรรมชาติ
-- พัฒนาโดย SCB 10X (ไทย)
-
-### 🥈 อันดับ 2: Qwen2.5-7B-Instruct
-
-**เหมาะสำหรับ:**
-- 📑 เอกสารผสมไทย-อังกฤษ
-- 🔬 เอกสารวิชาการ
-- 💼 เอกสารธุรกิจ
-
-**จุดเด่น:**
-- รองรับ 2 ภาษาได้ดี
-- เร็วกว่า Typhoon เล็กน้อย
-- ใช้ RAM น้อยกว่า
+1. Go to **🖥️ Local Server** tab
+2. Select your downloaded model
+3. Click **"Start Server"**
+4. Wait for green indicator
+5. Run PDFSummarizer.exe!
 
 ---
 
-## 🛠️ แก้ปัญหา
+## ❓ Troubleshooting
 
-| ปัญหา | วิธีแก้ |
+| Problem | Solution |
 |---|---|
-| **เปิดแอปแล้วไม่ขึ้น** | ✓ ตรวจสอบว่า LM Studio เปิดอยู่<br/>✓ กด "Start Server" ใน LM Studio |
-| **สรุปไม่ขึ้น / Error** | ✓ ตรวจสอบว่าโหลดโมเดลเรียบร้อยแล้ว<br/>✓ ลองเปลี่ยนโมเดล |
-| **ถามตอบไม่ทำงาน** | ✓ ตรวจสอบว่า Server Started (สีเขียว)<br/>✓ ลองถามคำถามง่ายๆ ก่อน |
-| **อัปโหลด PDF แล้วค้าง** | ✓ ไฟล์อาจใหญ่เกินไป (>100 หน้า)<br/>✓ รอสักครู่จนเสร็จ |
-| **Windows Defender เตือน** | ✓ กด "Run anyway" (false positive)<br/>✓ เพิ่มข้อยกเว้น |
+| **App won't open** | ✓ Check LM Studio is running<br/>✓ Click "Start Server" in LM Studio |
+| **Summary fails/errors** | ✓ Verify model is downloaded<br/>✓ Try different model |
+| **Q&A not working** | ✓ Check Server shows green<br/>✓ Try simple questions first |
+| **PDF upload stuck** | ✓ File may be too large (>100 pages)<br/>✓ Wait a moment |
+| **Windows Defender warning** | ✓ Click "Run anyway" (false positive)<br/>✓ Add exception |
 
 ---
 
-## 📁 โครงสร้างไฟล์
-
-หลังจากแตก ZIP จะได้:
+## 📁 File Structure (After Extracting)
 
 ```
 PDFSummarizer/
-├── PDFSummarizer.exe      ← ดับเบิลคลิกเพื่อรัน
-├── index.html             ← หน้าเว็บ
-├── uploads/               ← โฟลเดอร์เก็บ PDF
-├── data/                  ← ฐานข้อมูล
-├── cache/                 ← แคช
-└── ... (ไฟล์ระบบอื่นๆ)
+├── PDFSummarizer.exe      ← Double-click to run
+├── index.html             ← Web interface
+├── uploads/               ← PDF storage
+├── data/                  ← Database
+└── cache/                 ← Cache files
 ```
 
 ---
 
-## 📝 หมายเหตุสำคัญ
+## 📝 Important Notes
 
-- ⚠️ **ต้องเปิด LM Studio ทิ้งไว้** ขณะใช้งาน
-- 💾 ข้อมูลเก็บในเครื่อง (ไม่ส่งไป cloud)
-- 🔄 ปิดแล้วเปิดใหม่ได้ ข้อมูลไม่หาย
-- 🌐 ใช้งาน offline ได้ (หลังตั้งค่าครั้งแรก)
-- 📄 รองรับ PDF เท่านั้น (ไม่รองรับ Word, Excel)
+- ⚠️ **Keep LM Studio open** while using the app
+- 💾 All data stored locally (no cloud)
+- 🔄 Restart app anytime - data persists
+- 🌐 Works offline (after initial setup)
+- 📄 PDF files only (no Word, Excel)
 
 ---
 
-## 🤝 สนับสนุน
+## 🛠️ For Developers
 
-ถ้าชอบโปรเจคนี้ ช่วยกด ⭐ ให้ด้วยนะ!
+### Running from Source
 
-[☕ ซื้อกาแฟให้](https://tipme.in.th/athitfkm)
+#### Prerequisites
+
+- Python 3.10+
+- pip (Python package manager)
+
+#### Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/ohm41321/Doc_Summary.git
+cd Doc_Summary
+
+# Run setup (installs dependencies)
+setup.bat
+
+# Start the application
+start.bat
+```
+
+#### Manual Setup (Alternative)
+
+```bash
+# Create virtual environment
+python -m venv venv
+
+# Activate virtual environment
+venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+python main.py
+```
+
+### Building the .exe
+
+```bash
+# Quick build (recommended)
+build_debug.bat
+
+# Full build with all features
+build_exe.bat
+```
+
+### Project Structure (Development)
+
+```
+Doc_Summary/
+├── main.py                # FastAPI backend
+├── app_launcher.py        # PyInstaller entry point
+├── index.html             # Frontend interface
+├── requirements.txt       # Python dependencies
+├── setup.bat             # Auto-setup script
+├── start.bat             # Quick start script
+├── build_debug.bat       # Build .exe (debug mode)
+├── build_exe.bat         # Build .exe (production)
+└── [other dev files...]
+```
+
+### Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Commit with clear messages (`git commit -m 'feat: add amazing feature'`)
+5. Push to your branch (`git push origin feature/amazing-feature`)
+6. Open a Pull Request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+---
+
+## 🤝 Support
+
+If you find this project helpful, please consider giving it a ⭐!
+
+[☕ Buy me a coffee](https://tipme.in.th/athitfkm)
 
 ---
 
 ## 📜 License
 
-MIT License - ดูรายละเอียดในไฟล์ [LICENSE](LICENSE)
+MIT License - See [LICENSE](LICENSE) file for details
 
 ---
 
-**พัฒนาโดย [ItsAthtz](https://github.com/ohm41321)**
+## 📋 Release Notes
+
+See [RELEASE_NOTES.md](RELEASE_NOTES.md) for version history and upcoming features.
+
+---
+
+**Developed by [ItsAthtz](https://github.com/ohm41321)**

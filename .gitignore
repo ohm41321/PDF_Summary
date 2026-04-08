@@ -1,69 +1,160 @@
+# ============================================
 # Python
+# ============================================
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+*.egg-info/
+*.egg
+
+# Virtual environments
 venv/
 ENV/
 env/
+.venv/
 
+# ============================================
 # PyInstaller
+# ============================================
 build/
 dist/
 *.spec
 *.manifest
 *.cache
+build_debug.bat.log
 
-# Uploaded files
+# ============================================
+# Application Data (User Files)
+# ============================================
 uploads/
 *.pdf
 
-# Data
+# Database
 data/
 *.db
+*.db-journal
+
+# FAISS indexes
 *.faiss
 *_chunks.pkl
 
-# Cache
+# Embedding cache
 cache/
 *_embeddings.pkl
 
-# Environment
+# ============================================
+# Environment & Config
+# ============================================
 .env
+.env.local
+.env.production
 
-# IDE
+# ============================================
+# IDE & Editors
+# ============================================
 .vscode/
 .idea/
 *.swp
 *.swo
 *.sublime-*
+*.sublime-project
+*.sublime-workspace
 
-# OS
+# ============================================
+# OS Files
+# ============================================
 .DS_Store
 Thumbs.db
 desktop.ini
+ehthumbs.db
+Thumbs.db:encryptable
+ehthumbs_vista.db
+*.lnk
 
+# ============================================
 # Logs
+# ============================================
 *.log
 server.log
+*.log.*
 
-# Distribution
+# ============================================
+# Testing
+# ============================================
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+
+# ============================================
+# Jupyter Notebooks
+# ============================================
+.ipynb_checkpoints/
+
+# ============================================
+# Temporary Files
+# ============================================
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# ============================================
+# Compiled Python
+# ============================================
+*.pyc
+*.pyo
+*.pyd
+
+# ============================================
+# Distribution & Packages
+# ============================================
 *.exe
 *.dmg
 *.app
 *.zip
 *.tar.gz
+*.rar
+*.7z
+release_package/
+release_package_*/
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
+# ============================================
+# Build Artifacts
+# ============================================
+*.wheel
+*.whl
+*.egg-info/
 
-# Jupyter
-.ipynb_checkpoints/
+# ============================================
+# Documentation Build
+# ============================================
+docs/_build/
+site/
 
-# Temporary files
-tmp/
-temp/
-*.tmp
+# ============================================
+# Database
+# ============================================
+*.sqlite
+*.sqlite3
+
+# ============================================
+# OCR Models (EasyOCR)
+# ============================================
+EasyOCR/
+*.onnx
+
+# ============================================
+# Machine Learning
+# ============================================
+*.h5
+*.pb
+*.ckpt
+*.pt
+*.pth
+*.model
+
