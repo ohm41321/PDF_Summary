@@ -66,7 +66,7 @@
 
 | Type | Model | Size | Best For |
 |---|---|---|---|
-| **LLM** | **Typhoon-v1.5x-7B** 🇹🇭 | ~7B | Thai documents (best quality) |
+| **LLM** | **Any of Typhoon** 🇹🇭 | ~7B | Thai documents (best quality) |
 | **LLM** | **Qwen2.5-7B-Instruct** | ~7B | Thai + English mix |
 | **Embedding** | **bge-m3** | ~2GB | 100+ languages |
 | **Embedding** | **BAAI/bge-base-th** 🇹🇭 | ~500MB | Thai-specific |
