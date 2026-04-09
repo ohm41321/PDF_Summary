@@ -227,4 +227,4 @@ See [RELEASE_NOTES.md](RELEASE_NOTES.md) for version history and upcoming featur
 
 ---
 
-**Developed by [ItsAthtz](https://github.com/ohm41321)**
+**Developed by [ItsAthitz](https://github.com/ohm41321)**
